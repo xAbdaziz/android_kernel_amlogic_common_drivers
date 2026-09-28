@@ -37,7 +37,7 @@
 
 	memory@00000000 {
 		device_type = "memory";
-		linux,usable-memory = <0x0 0x000000 0x0 0x80000000>;
+		linux,usable-memory = <0x0 0x000000 0x0 0xf0000000>;
 	};
 
 	reserved-memory {
@@ -151,7 +151,7 @@
 			compatible = "shared-dma-pool";
 			reusable;
 			/* ion_codec_mm max can alloc size 80M*/
-			size = <0x0 0x16C00000>;
+			size = <0x0 0x1F800000>;
 			alignment = <0x0 0x400000>;
 			linux,contiguous-region;
 		};
@@ -228,9 +228,21 @@
 		status = "okay";
 		pwr_led {
 			label = "pwr_led";
-			gpios = <&gpio GPIOD_11 GPIO_ACTIVE_HIGH>;
+			gpios = <&gpio GPIOD_11 GPIO_ACTIVE_LOW>;
 			default-state = "on";
 		};
+	};
+
+	fd650_dev: fd650s {
+		compatible = "amlogic,fd650", "ref, fd650s";
+		dev_name = "fd650s";
+		status = "okay";
+		sda-gpios = <&gpio GPIOA_14 GPIO_ACTIVE_HIGH>;
+		scl-gpios = <&gpio GPIOA_15 GPIO_ACTIVE_HIGH>;
+	};
+
+	jtag {
+		status = "disable";
 	};
 
 	main_12v: fixregulator@1 {
@@ -287,7 +299,7 @@
 	dvb-extern {
 		compatible = "amlogic, dvb-extern";
 		dev_name = "dvb-extern";
-		status = "okay";
+		status = "disabled";
 
 		fe_num = <2>;
 		fe0_demod = "cxd2856";
@@ -313,7 +325,7 @@
 	dvb-demux {
 		compatible = "amlogic sc2, dvb-demux";
 		dev_name = "dvb-demux";
-		status = "okay";
+		status = "disabled";
 
 		reg = <0x0 0xfe000000 0x0 0x480000>;
 
@@ -448,7 +460,7 @@
 
 	gpio_keypad{
 		compatible = "amlogic, gpio_keypad";
-		status = "okay";
+		status = "disabled";
 		scan_period = <20>;
 		key_num = <2>;
 		key_name = "bluetooth", "mute";
@@ -461,7 +473,7 @@
 
 	adc_keypad {
 		compatible = "amlogic, adc_keypad";
-		status = "okay";
+		status = "disabled";
 		key_name = "vol-", "vol+", "power";
 		key_num = <3>;
 		io-channels = <&saradc 0>;
@@ -813,86 +825,17 @@
 };
 
 &i2c2 {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names="default";
 	pinctrl-0=<&i2c2_pins3>;
 	clock-frequency = <300000>;
 };
 
 &i2c3 {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names="default";
 	pinctrl-0=<&i2c3_pins2>;
 	clock-frequency = <300000>; /* default 100k */
-
-	tlc59116: tlc59116@60 {
-		compatible = "amlogic,tlc59116_led";
-		reg = <0x60>;
-		status = "okay";
-
-		led0 {
-			default_colors = <0 0 0>;
-			r_io_number = <0>;
-			g_io_number = <10>;
-			b_io_number = <5>;
-		};
-
-		led1 {
-			default_colors = <0 0 0>;
-			r_io_number = <1>;
-			g_io_number = <11>;
-			b_io_number = <6>;
-		};
-
-		led2 {
-			default_colors = <0 0 0>;
-			r_io_number = <2>;
-			g_io_number = <12>;
-			b_io_number = <7>;
-		};
-
-		led3 {
-			default_colors = <0 0 0>;
-			r_io_number = <3>;
-			g_io_number = <13>;
-			b_io_number = <8>;
-		};
-	};
-	aw9523: aw9523_led@5b {
-		compatible = "amlogic,aw9523b_led";
-		reg = <0x5b>;
-		status = "okay";
-		// reset-gpio = <&gpio GPIOD_11 GPIO_ACTIVE_HIGH>;
-		platform = <10>;
-
-		led3 {
-			default_colors = <0 0 0>;
-			r_io_number = <2>;
-			g_io_number = <12>;
-			b_io_number = <7>;
-		};
-
-		led4 {
-			default_colors = <0 0 0>;
-			r_io_number = <4>;
-			g_io_number = <10>;
-			b_io_number = <9>;
-		};
-
-		led9 {
-			default_colors = <0 0 0>;
-			r_io_number = <3>;
-			g_io_number = <11>;
-			b_io_number = <8>;
-		};
-
-		led1 {
-			default_colors = <0 0 0>;
-			r_io_number = <0>;
-			g_io_number = <14>;
-			b_io_number = <5>;
-		};
-	};
 };
 
 &audiobus {
@@ -1422,8 +1365,7 @@
 
 &dwc2_a {
 	status = "okay";
-	/** 0: normal, 1: otg+dwc3 host only, 2: otg+dwc3 device only*/
-	controller-type = <3>;
+	controller-type = <1>;
 };
 
 &dwc3 {
@@ -1438,7 +1380,7 @@
 &usb3_phy_v2 {
 	status = "okay";
 	portnum = <1>;
-	otg = <1>;
+	otg = <0>;
 	/*gpio-vbus-power = "GPIOH_6";*/
 	/*gpios = <&gpio GPIOH_6 GPIO_ACTIVE_HIGH>;*/
 };
@@ -1478,7 +1420,7 @@
 
 /* SD card */
 &sd_emmc_b {
-	status = "disabled";
+	status = "okay";
 	pinctrl-0 = <&sdcard_pins>;
 	pinctrl-1 = <&sdcard_clk_gate_pins>;
 	pinctrl-2 = <&sd_1bit_pins>;
@@ -1552,6 +1494,169 @@
 	status = "okay";
 	pinctrl-0 = <&remote_pins>;
 	pinctrl-names = "default";
+};
+
+&map_0 {
+	mapname = "amlogic-remote-1";
+	customcode = <0x4040>;
+	release_delay = <0x50>;
+	size = <24>;
+	keymap = <REMOTE_KEY(0x00, KEY_0)
+		REMOTE_KEY(0x01, KEY_1)
+		REMOTE_KEY(0x02, KEY_2)
+		REMOTE_KEY(0x03, KEY_3)
+		REMOTE_KEY(0x04, KEY_4)
+		REMOTE_KEY(0x05, KEY_5)
+		REMOTE_KEY(0x06, KEY_6)
+		REMOTE_KEY(0x07, KEY_7)
+		REMOTE_KEY(0x08, KEY_8)
+		REMOTE_KEY(0x09, KEY_9)
+		REMOTE_KEY(0x0b, KEY_UP)
+		REMOTE_KEY(0x0e, KEY_DOWN)
+		REMOTE_KEY(0x10, KEY_LEFT)
+		REMOTE_KEY(0x11, KEY_RIGHT)
+		REMOTE_KEY(0x0d, KEY_RIGHTCTRL)
+		REMOTE_KEY(0x42, KEY_BACK)
+		REMOTE_KEY(0x45, KEY_MENU)
+		REMOTE_KEY(0x18, KEY_VOLUMEUP)
+		REMOTE_KEY(0x17, KEY_VOLUMEDOWN)
+		REMOTE_KEY(0x53, KEY_PAUSE)
+		REMOTE_KEY(0x4d, KEY_POWER)
+		REMOTE_KEY(0x43, KEY_MUTE)
+		REMOTE_KEY(0x1a, KEY_HOME)
+		REMOTE_KEY(0x47, KEY_SEARCH)>;
+};
+
+&map_1 {
+	mapname = "amlogic-remote-2";
+	customcode = <0xfe01>;
+	release_delay = <0x50>;
+	size = <53>;
+	keymap = <REMOTE_KEY(0x01, KEY_1)
+		REMOTE_KEY(0x02, KEY_2)
+		REMOTE_KEY(0x03, KEY_3)
+		REMOTE_KEY(0x04, KEY_4)
+		REMOTE_KEY(0x05, KEY_5)
+		REMOTE_KEY(0x06, KEY_6)
+		REMOTE_KEY(0x07, KEY_7)
+		REMOTE_KEY(0x08, KEY_8)
+		REMOTE_KEY(0x09, KEY_9)
+		REMOTE_KEY(0x0a, KEY_0)
+		REMOTE_KEY(0x1f, KEY_FN_F1)
+		REMOTE_KEY(0x15, KEY_MENU)
+		REMOTE_KEY(0x16, KEY_TAB)
+		REMOTE_KEY(0x0c, KEY_CHANNELUP)
+		REMOTE_KEY(0x0d, KEY_CHANNELDOWN)
+		REMOTE_KEY(0x0e, KEY_VOLUMEUP)
+		REMOTE_KEY(0x0f, KEY_VOLUMEDOWN)
+		REMOTE_KEY(0x11, KEY_HOME)
+		REMOTE_KEY(0x1c, KEY_RIGHT)
+		REMOTE_KEY(0x1b, KEY_LEFT)
+		REMOTE_KEY(0x19, KEY_UP)
+		REMOTE_KEY(0x1a, KEY_DOWN)
+		REMOTE_KEY(0x1d, KEY_ENTER)
+		REMOTE_KEY(0x17, KEY_MUTE)
+		REMOTE_KEY(0x49, KEY_FINANCE)
+		REMOTE_KEY(0x43, KEY_BACK)
+		REMOTE_KEY(0x12, KEY_FN_F4)
+		REMOTE_KEY(0x14, KEY_FN_F5)
+		REMOTE_KEY(0x18, KEY_FN_F6)
+		REMOTE_KEY(0x59, KEY_INFO)
+		REMOTE_KEY(0x5a, KEY_STOPCD)
+		REMOTE_KEY(0x10, KEY_POWER)
+		REMOTE_KEY(0x42, KEY_PREVIOUSSONG)
+		REMOTE_KEY(0x44, KEY_NEXTSONG)
+		REMOTE_KEY(0x1e, KEY_REWIND)
+		REMOTE_KEY(0x4b, KEY_FASTFORWARD)
+		REMOTE_KEY(0x58, KEY_PLAYPAUSE)
+		REMOTE_KEY(0x46, KEY_PROPS)
+		REMOTE_KEY(0x40, KEY_UNDO)
+		REMOTE_KEY(0x38, KEY_SCROLLLOCK)
+		REMOTE_KEY(0x57, KEY_FN)
+		REMOTE_KEY(0x5b, KEY_FN_ESC)
+		REMOTE_KEY(0x54, KEY_RED)
+		REMOTE_KEY(0x4c, KEY_GREEN)
+		REMOTE_KEY(0x4e, KEY_YELLOW)
+		REMOTE_KEY(0x55, KEY_BLUE)
+		REMOTE_KEY(0x53, KEY_BLUETOOTH)
+		REMOTE_KEY(0x52, KEY_WLAN)
+		REMOTE_KEY(0x39, KEY_CAMERA)
+		REMOTE_KEY(0x41, KEY_SOUND)
+		REMOTE_KEY(0x0b, KEY_QUESTION)
+		REMOTE_KEY(0x00, KEY_CHAT)
+		REMOTE_KEY(0x13, KEY_SEARCH)>;
+};
+
+&map_3 {
+	mapname = "amlogic-remote-4";
+	customcode = <0x7788>;
+	release_delay = <0x50>;
+	vendor = <0x0002>;
+	product = <0x0002>;
+	version = <0x0200>;
+	size = <38>;
+	keymap = <REMOTE_KEY(0x01, KEY_1)
+		REMOTE_KEY(0x02, KEY_2)
+		REMOTE_KEY(0x03, KEY_3)
+		REMOTE_KEY(0x04, KEY_4)
+		REMOTE_KEY(0x05, KEY_5)
+		REMOTE_KEY(0x06, KEY_6)
+		REMOTE_KEY(0x07, KEY_7)
+		REMOTE_KEY(0x08, KEY_8)
+		REMOTE_KEY(0x09, KEY_9)
+		REMOTE_KEY(0x0a, KEY_0)
+		REMOTE_KEY(0x58, KEY_FN_F6)
+		REMOTE_KEY(0x29, KEY_INFO)
+		REMOTE_KEY(0x74, KEY_BOOKMARKS)
+		REMOTE_KEY(0x46, KEY_SEARCH)
+		REMOTE_KEY(0x0f, KEY_SETUP)
+		REMOTE_KEY(0x15, KEY_UP)
+		REMOTE_KEY(0x16, KEY_DOWN)
+		REMOTE_KEY(0x17, KEY_LEFT)
+		REMOTE_KEY(0x18, KEY_RIGHT)
+		REMOTE_KEY(0x19, KEY_ENTER)
+		REMOTE_KEY(0x47, KEY_HOME)
+		REMOTE_KEY(0x48, KEY_BACK)
+		REMOTE_KEY(0x32, KEY_HELP)
+		REMOTE_KEY(0x21, KEY_POWER)
+		REMOTE_KEY(0x60, KEY_FN_F1)
+		REMOTE_KEY(0x25, KEY_MUTE)
+		REMOTE_KEY(0x23, KEY_VOLUMEUP)
+		REMOTE_KEY(0x24, KEY_VOLUMEDOWN)
+		REMOTE_KEY(0x63, KEY_F17)
+		REMOTE_KEY(0x64, KEY_F18)
+		REMOTE_KEY(0x67, KEY_F19)
+		REMOTE_KEY(0x68, KEY_F20)
+		REMOTE_KEY(0x33, KEY_CHANNELUP)
+		REMOTE_KEY(0x34, KEY_CHANNELDOWN)
+		REMOTE_KEY(0x4b, KEY_RED)
+		REMOTE_KEY(0x4a, KEY_GREEN)
+		REMOTE_KEY(0x49, KEY_YELLOW)
+		REMOTE_KEY(0x4c, KEY_BLUE)>;
+};
+
+&ir_wakeup_key {
+	key_num = <12>;
+	/*	framecode	wakeup_reason	report_event */
+	wakeup_key = <0xba45bd02 IR_NORMAL KEY_POWER
+		      0xef10fe01 IR_NORMAL KEY_POWER
+		      0xef10fb04 IR_NORMAL KEY_POWER
+		      0xf20dfe01 IR_NORMAL KEY_POWER
+		      0xe51afb04 IR_NORMAL KEY_POWER
+		      0xde217788 IR_NORMAL KEY_POWER
+		      0x3ac5bd02 IR_CUSTOM KEY_COPY
+		      0xb8477788 IR_NORMAL KEY_HOME
+		      0x9b647788 IR_NORMAL KEY_F18
+		      0x8f707788 IR_NORMAL KEY_FN_1
+		      0x9c637788 IR_NORMAL KEY_F17
+		      0xb24d4040 IR_NORMAL KEY_POWER>;
+};
+
+&amhdmitx {
+	vend_data {
+		vendor_name = "Tanix";
+		product_desc = "X4";
+	};
 };
 
 &spicc0 {
@@ -1765,7 +1870,7 @@
 };
 
 &irblaster {
-	status = "disabled";
+	status = "okay";
 };
 
 &uart_E {
